@@ -1,4 +1,4 @@
-#include "window.hpp"
+#include <nostokeeb/window.hpp>
 
 #include <iostream>
 #include <string>
