@@ -25,7 +25,7 @@ button {
 button:hover {
   background-color: #111;
 }
-button:active {
+button:active, button.toggled {
   color: #000;
   background-color: #eee;
 }

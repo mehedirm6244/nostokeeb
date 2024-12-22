@@ -1,4 +1,4 @@
-#include "window.hpp"
+#include <nostokeeb/window.hpp>
 
 #include <iostream>
 #include <string>
@@ -43,6 +43,7 @@ void NK_Window::release_all_keys() {
       XTestFakeKeyEvent(m_display, keycode, false, CurrentTime);
     }
   }
+  XFlush(m_display);
   m_pressed_keys.clear();
 }
 
@@ -52,6 +53,19 @@ void NK_Window::handle_signal(int signal) {
   }
   std::cerr << "Signal received: " << signal << std::endl;
   exit(signal);
+}
+
+bool toggle_button(Gtk::Button *button) {
+  auto btn_style_ctx = button->get_style_context();
+  bool is_toggled = btn_style_ctx->has_class("toggled");
+
+  if (is_toggled) {
+    btn_style_ctx->remove_class("toggled");
+  } else {
+    btn_style_ctx->add_class("toggled");
+  }
+
+  return !is_toggled;
 }
 
 void NK_Window::create_keys() {
@@ -95,8 +109,28 @@ void NK_Window::create_keys() {
       auto button = Gtk::make_managed<Gtk::Button>(label);
       bool expand_btn = false;
 
-      button->signal_pressed().connect([this, keysym]() { simulate_key(keysym, 1); });
-      button->signal_released().connect([this, keysym]() { simulate_key(keysym, 0); });
+      if (label == "Shift" || label == "Ctrl" || label == "Alt") {
+        button->signal_pressed().connect([this, button, keysym]() {
+            simulate_key(keysym, toggle_button(button));
+        });
+      } else {
+        if (label == "CapsLk") {
+          XKeyboardState x;
+          XGetKeyboardControl(m_display, &x);
+          if (x.led_mask & 1) {
+            toggle_button(button);
+          }
+
+          button->signal_pressed().connect([this, button, keysym]() {
+            toggle_button(button);
+            simulate_key(keysym, true);
+          });
+          button->signal_released().connect([this, keysym]() { simulate_key(keysym, false); });
+        } else {
+          button->signal_released().connect([this, keysym]() { simulate_key(keysym, true); });
+          button->signal_released().connect([this, keysym]() { simulate_key(keysym, false); });
+        }
+      }
 
       if (wide_keys.count(label)) {
         button->get_style_context()->add_class("button-wide");
@@ -164,8 +198,5 @@ NK_Window::NK_Window() : m_button_drag("Drag"), m_button_close("Close") {
 
 NK_Window::~NK_Window() {
   release_all_keys();
-  if (m_display) {
-    XCloseDisplay(m_display);
-  }
   s_instance = nullptr;
 }
