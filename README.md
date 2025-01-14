@@ -6,8 +6,7 @@ Onboard was crashing on LightDM login prompt, locking me out of my computer as m
 
 ![Screenshot](/screenshots/ss.png)
 
-## To-do
+### Dependencies
 
-- [ ] Make `Ctrl`, `Shift` and `Alt` actually useful
-- [ ] Add visual indicators for `CapsLock`, `Shift`, `Ctrl` and `Alt`
-- [ ] Fix bugs
+- X11
+- XLib

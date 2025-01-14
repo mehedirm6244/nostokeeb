@@ -1,19 +1,41 @@
-#include <nostokeeb/window.hpp>
+/*
+
+This file is from NostoKeeb - an on screen keyboard program for X11.
+Copyright (C) 2024-2025 Mehedi Rahman Mahi
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+*/
+
+#include "nostokeeb/nostokeeb.hpp"
+#include "nostokeeb/window.hpp"
+#include "nostokeeb/style.hpp"
+#include "nostokeeb/layout.hpp"
 
 #include <iostream>
 #include <string>
-#include <csignal>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
 
-/* Static instance for signal handling */
-NK_Window* NK_Window::s_instance = nullptr;
-
-void NK_Window::apply_css() {
+void NK_Window::apply_css(const std::string css_data) {
   auto css_provider = Gtk::CssProvider::create();
   try {
-    css_provider->load_from_data(CSS_DATA);
+    css_provider->load_from_data(css_data);
     auto screen = Gdk::Screen::get_default();
-    Gtk::StyleContext::add_provider_for_screen(screen, css_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    Gtk::StyleContext::add_provider_for_screen(
+      screen, css_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
   } catch (const Glib::Error& e) {
     std::cerr << "Failed to load CSS: " << e.what() << std::endl;
   }
@@ -21,11 +43,7 @@ void NK_Window::apply_css() {
 
 void NK_Window::simulate_key(KeySym keysym, bool pressed) {
   KeyCode keycode = XKeysymToKeycode(m_display, keysym);
-  if (keycode == 0) {
-    return;
-  }
 
-  /* Keep Track of The Pressed Keys */
   if (pressed) {
     m_pressed_keys.insert(keysym);
   } else {
@@ -39,164 +57,125 @@ void NK_Window::simulate_key(KeySym keysym, bool pressed) {
 void NK_Window::release_all_keys() {
   for (const auto& keysym : m_pressed_keys) {
     KeyCode keycode = XKeysymToKeycode(m_display, keysym);
-    if (keycode != 0) {
-      XTestFakeKeyEvent(m_display, keycode, false, CurrentTime);
-    }
+    XTestFakeKeyEvent(m_display, keycode, false, CurrentTime);
   }
+
   XFlush(m_display);
   m_pressed_keys.clear();
 }
 
-void NK_Window::handle_signal(int signal) {
-  if (s_instance) {
-    s_instance->release_all_keys();
-  }
-  std::cerr << "Signal received: " << signal << std::endl;
-  exit(signal);
-}
-
 bool toggle_button(Gtk::Button *button) {
-  auto btn_style_ctx = button->get_style_context();
-  bool is_toggled = btn_style_ctx->has_class("toggled");
+  auto style_context = button->get_style_context();
+  bool is_toggled = style_context->has_class("toggled");
 
   if (is_toggled) {
-    btn_style_ctx->remove_class("toggled");
+    style_context->remove_class("toggled");
   } else {
-    btn_style_ctx->add_class("toggled");
+    style_context->add_class("toggled");
   }
 
   return !is_toggled;
 }
 
 void NK_Window::create_keys() {
-  /* Apparently this is the most optimal way I can think of */
-  const std::vector<std::vector<std::pair<std::string, KeySym>>> keys = {
-    {
-      {"`", XK_grave}, {"1", XK_1}, {"2", XK_2}, {"3", XK_3}, {"4", XK_4}, {"5", XK_5},
-      {"6", XK_6}, {"7", XK_7}, {"8", XK_8}, {"9", XK_9}, {"0", XK_0}, {"-", XK_minus},
-      {"=", XK_equal}, {"Back", XK_BackSpace}, {"Del", XK_Delete}
-    },
-    {
-      {"Tab", XK_Tab}, {"Q", XK_Q}, {"W", XK_W}, {"E", XK_E}, {"R", XK_R}, {"T", XK_T},
-      {"Y", XK_Y}, {"U", XK_U}, {"I", XK_I}, {"O", XK_O}, {"P", XK_P}, {"[", XK_bracketleft},
-      {"]", XK_bracketright}, {"\\", XK_backslash}
-    },
-    {
-      {"CapsLk", XK_Caps_Lock}, {"A", XK_A}, {"S", XK_S}, {"D", XK_D}, {"F", XK_F},
-      {"G", XK_G}, {"H", XK_H}, {"J", XK_J}, {"K", XK_K}, {"L", XK_L}, {";", XK_semicolon},
-      {"'", XK_apostrophe}, {"Enter", XK_Return}
-    },
-    {
-      {"Shift", XK_Shift_L}, {"Z", XK_Z}, {"X", XK_X}, {"C", XK_C}, {"V", XK_V}, {"B", XK_B},
-      {"N", XK_N}, {"M", XK_M}, {",", XK_comma}, {".", XK_period}, {"/", XK_slash},
-      {"Shift", XK_Shift_R}
-    },
-    {
-      {"Ctrl", XK_Control_L}, {"Win", XK_Super_L}, {"Alt", XK_Alt_L}, {" ", XK_space},
-      {"Ctrl", XK_Control_R}, {"Alt", XK_Alt_R}, {"←", XK_Left}, {"→", XK_Right}, {"↑", XK_Up},
-      {"↓", XK_Down}
-    }
-  };
-
-  const std::set<std::string> wide_keys = {
-    " ", "Shift", "Tab", "Back", "Enter", "CapsLk", "Ctrl", "Alt", "Win"
-  };
-
-  for (const auto& row : keys) {
-    auto current_row = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 4);
+  for (const auto& row : NK_Layout::LAYOUT) {
+    auto row_box = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 5);
 
     for (const auto& [label, keysym] : row) {
       auto button = Gtk::make_managed<Gtk::Button>(label);
-      bool expand_btn = false;
+      bool expand_btn = NK_Layout::WIDE_KEYS.count(keysym);
 
-      if (label == "Shift" || label == "Ctrl" || label == "Alt") {
-        button->signal_pressed().connect([this, button, keysym]() {
-            simulate_key(keysym, toggle_button(button));
+      button->signal_pressed().connect([this, button, keysym]() {
+        simulate_key(keysym, NK_Layout::TOGGLE_KEYS.count(keysym) ?
+          toggle_button(button) : NK_KEY_PRESSED);
+
+        // TODO: HANDLE CAPS_LOCK IN A BETTER WAY
+        if (keysym == XK_Caps_Lock) {
+          toggle_button(button);
+        }
+      });
+
+      if (!NK_Layout::TOGGLE_KEYS.count(keysym)) {
+        button->signal_released().connect([this, button, keysym]() {
+          simulate_key(keysym, NK_KEY_RELEASED);
         });
-      } else {
-        if (label == "CapsLk") {
-          XKeyboardState x;
-          XGetKeyboardControl(m_display, &x);
-          if (x.led_mask & 1) {
-            toggle_button(button);
-          }
-
-          button->signal_pressed().connect([this, button, keysym]() {
-            toggle_button(button);
-            simulate_key(keysym, true);
-          });
-          button->signal_released().connect([this, keysym]() { simulate_key(keysym, false); });
-        } else {
-          button->signal_released().connect([this, keysym]() { simulate_key(keysym, true); });
-          button->signal_released().connect([this, keysym]() { simulate_key(keysym, false); });
-        }
       }
 
-      if (wide_keys.count(label)) {
+      if (label.size() > 1) {
         button->get_style_context()->add_class("button-wide");
-        if (label != "Ctrl" && label != "Alt" && label != "Win") {
-          expand_btn = true;
-        }
       }
 
-      current_row->pack_start(*button, (expand_btn)? Gtk::PACK_EXPAND_WIDGET : Gtk::PACK_SHRINK);
+      row_box->pack_start(*button,
+        expand_btn? Gtk::PACK_EXPAND_WIDGET : Gtk::PACK_SHRINK);
     }
 
-    m_vbox.pack_start(*current_row, Gtk::PACK_SHRINK);
+    m_kb_box.pack_start(*row_box, Gtk::PACK_SHRINK);
   }
 }
 
-NK_Window::NK_Window() : m_button_drag("Drag"), m_button_close("Close") {
-  /* Check if another instance of NostoKeeb is already running */
-  if (s_instance) {
-    throw std::runtime_error("Only one instance of NK_Window is allowed!");
-  }
-  s_instance = this;
-
-  /* Set Window Properties */
-  set_title("NostoKeeb");
-  set_icon(Gtk::IconTheme::get_default()->load_icon("input-keyboard", 32, Gtk::ICON_LOOKUP_NO_SVG));
+NK_Window::NK_Window() :
+  m_button_drag(""),
+  m_display(nullptr) {
+  set_title(NostoKeeb::PROGRAM_NAME);
+  set_icon(Gtk::IconTheme::get_default()->load_icon(
+    NostoKeeb::PROGRAM_ICON, 32, Gtk::ICON_LOOKUP_NO_SVG));
   set_decorated(false);
   set_resizable(false);
   set_keep_above(true);
   set_accept_focus(false);
-  set_border_width(6);
 
   /* Abort if display server isn't X11 */
   m_display = XOpenDisplay(nullptr);
   if (!m_display) {
-    Gtk::MessageDialog dialog(*this, "X11 Display not available!", false, Gtk::MESSAGE_ERROR);
+    Gtk::MessageDialog dialog(*this,
+      "X11 Display not available!", false, Gtk::MESSAGE_ERROR);
     dialog.run();
     return;
   }
 
+  get_style_context()->add_class("nk_keyboard");
+
   m_control_box.get_style_context()->add_class("control-box");
   m_control_box.pack_start(m_button_drag, Gtk::PACK_EXPAND_WIDGET);
   m_control_box.pack_end(m_button_close, Gtk::PACK_SHRINK);
-  m_vbox.add(m_control_box);
+  m_control_box.pack_end(m_button_about, Gtk::PACK_SHRINK);
+  m_main_box.add(m_control_box);
 
-  m_button_drag.signal_button_press_event().connect([this](GdkEventButton* event) {
-    begin_move_drag(event->button, event->x_root, event->y_root, event->time);
-    return true;
-  });
+  m_button_drag.signal_button_press_event().connect(
+    [this](GdkEventButton* event) {
+      begin_move_drag(event->button, event->x_root, event->y_root, event->time);
+      return true;
+    }
+  );
 
-  m_button_close.signal_clicked().connect([this]() {
-    close();
-  });
-  m_button_close.get_style_context()->add_class("close");
+  m_button_close.set_image(*Gtk::make_managed<Gtk::Image>(
+    "window-close-symbolic", Gtk::ICON_SIZE_BUTTON));
+  m_button_close.signal_clicked().connect([this]() { close(); });
 
-  add(m_vbox);
+  m_button_about.set_image(*Gtk::make_managed<Gtk::Image>(
+    "help-about-symbolic", Gtk::ICON_SIZE_BUTTON));
+  m_button_about.signal_clicked().connect(sigc::mem_fun(*this,
+    &NK_Window::handle_sig_about));
+
+  m_kb_box.set_margin_top(8);
+  m_kb_box.set_margin_bottom(8);
+  m_kb_box.set_margin_left(8);
+  m_kb_box.set_margin_right(8);
+  m_main_box.add(m_kb_box);
+
+  add(m_main_box);
 
   create_keys();
-  apply_css();
+  apply_css(NK_Style::CSS_LIGHT);
   show_all_children();
-
-  /* Register Signal Handlers */
-  std::signal(SIGINT, NK_Window::handle_signal);
-  std::signal(SIGTERM, NK_Window::handle_signal);
 }
 
 NK_Window::~NK_Window() {
   release_all_keys();
-  s_instance = nullptr;
+}
+
+void NK_Window::handle_sig_about() {
+  m_about_dialog.set_transient_for(*this);
+  m_about_dialog.run();
+  m_about_dialog.hide();
 }

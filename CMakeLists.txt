@@ -11,6 +11,7 @@ include_directories(${GTKMM_INCLUDE_DIRS})
 add_executable(nostokeeb
     src/main.cpp
     src/window.cpp
+    src/aboutdialog.cpp
 )
 
 target_link_libraries(nostokeeb ${GTKMM_LIBRARIES} X11 Xtst)

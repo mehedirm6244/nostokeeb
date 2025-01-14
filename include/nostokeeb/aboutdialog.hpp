@@ -18,11 +18,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 */
 
-#include "nostokeeb/window.hpp"
 
-int main(int argc, char* argv[]) {
-  auto app = Gtk::Application::create(argc, argv, "org.NostoKeeb");
+#ifndef NK_ABOUT_HPP
+#define NK_ABOUT_HPP
 
-  NK_Window window;
-  return app->run(window);
-}
+#include <gtkmm.h>
+
+class NK_AboutDialog : public Gtk::AboutDialog {
+public:
+  NK_AboutDialog();
+  virtual ~NK_AboutDialog();
+};
+
+#endif // NK_ABOUT_HPP
