@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Nostokeeb
+Type=Application
+Exec=nostokeeb
+Comment=On-screen keyboard for X11
+Icon=keyboard
+Terminal=false
+Categories=Utility;Accessibility;
+Keywords=onscreen;keyboard;accessibility;utility;

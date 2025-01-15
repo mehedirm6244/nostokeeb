@@ -2,6 +2,9 @@
 .idea
 .vscode
 
+# Build folder
+build
+
 ### C++ template
 # Prerequisites
 *.d

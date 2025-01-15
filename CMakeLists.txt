@@ -15,3 +15,8 @@ add_executable(nostokeeb
 )
 
 target_link_libraries(nostokeeb ${GTKMM_LIBRARIES} X11 Xtst)
+
+install(TARGETS nostokeeb DESTINATION /usr/local/bin)
+
+configure_file(data/nostokeeb.desktop.in ${CMAKE_BINARY_DIR}/nostokeeb.desktop @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/nostokeeb.desktop DESTINATION /usr/share/applications)

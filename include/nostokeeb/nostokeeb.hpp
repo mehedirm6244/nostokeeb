@@ -27,7 +27,7 @@ namespace NostoKeeb {
   constexpr const char* PROGRAM_ICON = "input-keyboard";
   constexpr const char* VERSION = "0.1";
   constexpr const char* AUTHOR = "Mehedi Rahman Mahi";
-  constexpr const char* COMMENT = "An on-screen keyboard for X11 written in GTK3";
+  constexpr const char* COMMENT = "Nostokeeb is an on-screen keyboard for X11";
   constexpr const char* WEBSITE = "https://github.com/mehedirm6244/nostokeeb";
   constexpr const char* LICENSE = R"(This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

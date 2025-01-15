@@ -166,7 +166,7 @@ NK_Window::NK_Window() :
   add(m_main_box);
 
   create_keys();
-  apply_css(NK_Style::CSS_LIGHT);
+  apply_css(NK_Style::CSS_DEFAULT);
   show_all_children();
 }
 
