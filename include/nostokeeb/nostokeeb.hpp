@@ -24,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace NostoKeeb {
   constexpr const char* PROGRAM_NAME = "NostoKeeb";
-  constexpr const char* PROGRAM_ICON = "input-keyboard";
+  constexpr const char* PROGRAM_ICON = "nostokeeb";
   constexpr const char* VERSION = "0.1";
   constexpr const char* AUTHOR = "Mehedi Rahman Mahi";
   constexpr const char* COMMENT = "Nostokeeb is an on-screen keyboard for X11";

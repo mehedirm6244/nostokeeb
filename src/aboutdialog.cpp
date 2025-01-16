@@ -27,7 +27,8 @@ NK_AboutDialog::NK_AboutDialog() {
   set_license(NostoKeeb::LICENSE);
   set_comments(NostoKeeb::COMMENT);
   set_website(NostoKeeb::WEBSITE);
-  set_logo_icon_name(NostoKeeb::PROGRAM_ICON);
+  set_logo(Gtk::IconTheme::get_default()->load_icon(
+    NostoKeeb::PROGRAM_ICON, 128, Gtk::ICON_LOOKUP_USE_BUILTIN));
 }
 
 NK_AboutDialog::~NK_AboutDialog() = default;

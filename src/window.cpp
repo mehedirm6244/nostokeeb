@@ -118,7 +118,7 @@ NK_Window::NK_Window() :
   m_display(nullptr) {
   set_title(NostoKeeb::PROGRAM_NAME);
   set_icon(Gtk::IconTheme::get_default()->load_icon(
-    NostoKeeb::PROGRAM_ICON, 32, Gtk::ICON_LOOKUP_NO_SVG));
+    NostoKeeb::PROGRAM_ICON, 128, Gtk::ICON_LOOKUP_USE_BUILTIN));
   set_decorated(false);
   set_resizable(false);
   set_keep_above(true);
