@@ -1,8 +1,10 @@
-# NostoKeeb
 ![Logo](/assets/nostokeeb.svg)
+
+# NostoKeeb
 NostoKeeb [নষ্ট (Bangla): Rotten] is an on screen keyboard **for X11** written in GTK3
 
-![Screenshot](/assets/screenshot.png)
+### Preview
+<p align="center"><img src="/assets/screenshot.png"></p>
 
 ## Dependencies
 
