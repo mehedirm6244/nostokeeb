@@ -32,7 +32,6 @@ namespace NK_Style {
       min-height: 24px;
       font-weight: 500;
     }
-    .nk_keyboard button.toggled { background-color: #ff5555; }
     .nk_keyboard .button-wide { padding: 8px 12px; }
     .nk_keyboard .control-box button {
       background-color: transparent;

@@ -31,3 +31,9 @@ make
 sudo make install
 ```
 A `.desktop` file and executive binary will be installed globally.
+
+## Uninstallation
+Make sure the present working directory is `/build`
+```
+sudo make uninstall
+```

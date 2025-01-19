@@ -64,45 +64,36 @@ void NK_Window::release_all_keys() {
   m_pressed_keys.clear();
 }
 
-bool toggle_button(Gtk::Button *button) {
-  auto style_context = button->get_style_context();
-  bool is_toggled = style_context->has_class("toggled");
-
-  if (is_toggled) {
-    style_context->remove_class("toggled");
-  } else {
-    style_context->add_class("toggled");
-  }
-
-  return !is_toggled;
-}
-
 void NK_Window::create_keys() {
   for (const auto& row : NK_Layout::LAYOUT) {
     auto row_box = Gtk::make_managed<Gtk::Box>(Gtk::ORIENTATION_HORIZONTAL, 5);
 
     for (const auto& [label, keysym] : row) {
-      auto button = Gtk::make_managed<Gtk::Button>(label);
       bool expand_btn = NK_Layout::WIDE_KEYS.count(keysym);
-
-      button->signal_pressed().connect([this, button, keysym]() {
-        simulate_key(keysym, NK_Layout::TOGGLE_KEYS.count(keysym) ?
-          toggle_button(button) : NK_KEY_PRESSED);
-
-        // TODO: HANDLE CAPS_LOCK IN A BETTER WAY
-        if (keysym == XK_Caps_Lock) {
-          toggle_button(button);
-        }
-      });
-
-      if (!NK_Layout::TOGGLE_KEYS.count(keysym)) {
-        button->signal_released().connect([this, button, keysym]() {
-          simulate_key(keysym, NK_KEY_RELEASED);
-        });
-      }
+      auto button = Gtk::make_managed<Gtk::ToggleButton>(label);
 
       if (label.size() > 1) {
         button->get_style_context()->add_class("button-wide");
+      }
+      
+      if (keysym == XK_Caps_Lock) {
+        button->signal_toggled().connect([this, keysym]() {
+          simulate_key(keysym, NK_KEY_PRESSED);
+          simulate_key(keysym, NK_KEY_RELEASED);
+        });
+      } else if (NK_Layout::TOGGLE_KEYS.count(keysym)) {
+        button->signal_toggled().connect([this, keysym, button]() {
+          simulate_key(keysym, button->get_active());
+        });
+      } else {
+        button->signal_pressed().connect([this, keysym]() {
+          simulate_key(keysym, NK_KEY_PRESSED);
+        });
+
+        button->signal_released().connect([this, keysym, button]() {
+          simulate_key(keysym, NK_KEY_RELEASED);
+          button->set_active(false);
+        });
       }
 
       row_box->pack_start(*button,
@@ -117,12 +108,20 @@ NK_Window::NK_Window() :
   m_button_drag(""),
   m_display(nullptr) {
   set_title(NostoKeeb::PROGRAM_NAME);
-  set_icon(Gtk::IconTheme::get_default()->load_icon(
-    NostoKeeb::PROGRAM_ICON, 128, Gtk::ICON_LOOKUP_USE_BUILTIN));
   set_decorated(false);
   set_resizable(false);
   set_keep_above(true);
   set_accept_focus(false);
+  set_skip_taskbar_hint(true);
+  set_skip_pager_hint(false);
+  
+  /* Set program icon */
+  try {
+    set_icon(Gtk::IconTheme::get_default()->load_icon(
+      NostoKeeb::PROGRAM_ICON, 128, Gtk::ICON_LOOKUP_USE_BUILTIN));
+  } catch (const Gtk::IconThemeError& e) {
+    std::cerr << "Icon not found: " << NostoKeeb::PROGRAM_ICON << std::endl;
+  }
 
   /* Abort if display server isn't X11 */
   m_display = XOpenDisplay(nullptr);
