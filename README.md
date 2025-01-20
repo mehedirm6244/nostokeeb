@@ -13,27 +13,8 @@ NostoKeeb [নষ্ট (Bangla): Rotten] is an on screen keyboard **for X11** w
 
 ## Installation
 
-### Cloning Repository
-```
-git clone https://github.com/mehedirm6244/nostokeeb
-cd nostokeeb
-```
+See [INSTALLATION.md](INSTALLATION.md)
 
-### Setting up Cmake
-```
-mkdir build && cd build
-cmake ..
-```
+## Customization
 
-### Compiling and Installing
-```
-make
-sudo make install
-```
-A `.desktop` file and executive binary will be installed globally.
-
-## Uninstallation
-Make sure the present working directory is `/build`
-```
-sudo make uninstall
-```
+See [CUSTOMIZATION.md](CUSTOMIZATION.md)
