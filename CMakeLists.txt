@@ -14,8 +14,8 @@ include_directories(${GTKMM_INCLUDE_DIRS})
 # Define the executable and its source files
 add_executable(nostokeeb
     src/main.cpp
-    src/window.cpp
-    src/aboutdialog.cpp
+    src/NK_Window.cpp
+    src/NK_AboutDialog.cpp
 )
 
 # Link libraries

@@ -16,21 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "nostokeeb/NostoKeeb.hpp"
-#include "nostokeeb/NK_Window.hpp"
 
-#include <iostream>
+#ifndef NK_ABOUT_HPP
+#define NK_ABOUT_HPP
 
-int main(int argc, char* argv[]) {
-  // Startup message
-  std::cout << NostoKeeb::PROGRAM_NAME << " " << NostoKeeb::VERSION
-            << " (C) 2024-2025 Mehedi Rahman Mahi\n"
-            << "This program comes with ABSOLUTELY NO WARRANTY.\n"
-            << "This is free software, and you are welcome to redistribute it under certain conditions.\n"
-            << "Launching NostoKeeb...\n";
+#include <gtkmm.h>
 
-  auto app = Gtk::Application::create(argc, argv, "org.nostokeeb.app");
+class NK_AboutDialog : public Gtk::AboutDialog {
+public:
+  NK_AboutDialog();
+  virtual ~NK_AboutDialog();
+};
 
-  NK_Window window;
-  return app->run(window);
-}
+#endif // NK_ABOUT_HPP

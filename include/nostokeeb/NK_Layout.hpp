@@ -1,22 +1,20 @@
-/*
-
-This file is from NostoKeeb - an on screen keyboard program for X11.
-Copyright (C) 2024-2025 Mehedi Rahman Mahi
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-*/
+/**
+ * This file is from NostoKeeb - an on screen keyboard program for X11.
+ * Copyright (C) 2024-2025 Mehedi Rahman Mahi
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #ifndef NK_LAYOUT
 #define NK_LAYOUT
@@ -52,7 +50,7 @@ namespace NK_Layout {
     }
   };
 
-  const std::set<KeySym> WIDE_KEYS = {
+  const std::set<KeySym> EXPANDED_KEYS = {
     XK_BackSpace, XK_Tab, XK_Caps_Lock, XK_Return, XK_Shift_L, XK_Shift_R, XK_space
   };
 

@@ -16,21 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "nostokeeb/NK_AboutDialog.hpp"
 #include "nostokeeb/NostoKeeb.hpp"
-#include "nostokeeb/NK_Window.hpp"
 
 #include <iostream>
 
-int main(int argc, char* argv[]) {
-  // Startup message
-  std::cout << NostoKeeb::PROGRAM_NAME << " " << NostoKeeb::VERSION
-            << " (C) 2024-2025 Mehedi Rahman Mahi\n"
-            << "This program comes with ABSOLUTELY NO WARRANTY.\n"
-            << "This is free software, and you are welcome to redistribute it under certain conditions.\n"
-            << "Launching NostoKeeb...\n";
-
-  auto app = Gtk::Application::create(argc, argv, "org.nostokeeb.app");
-
-  NK_Window window;
-  return app->run(window);
+NK_AboutDialog::NK_AboutDialog() {
+  set_program_name(NostoKeeb::PROGRAM_NAME);
+  set_version(NostoKeeb::VERSION);
+  set_license(NostoKeeb::LICENSE);
+  set_comments(NostoKeeb::COMMENT);
+  set_website(NostoKeeb::WEBSITE);
+  try {
+    set_logo(Gtk::IconTheme::get_default()->load_icon(
+      NostoKeeb::PROGRAM_ICON, 128, Gtk::ICON_LOOKUP_USE_BUILTIN));
+  } catch (const Gtk::IconThemeError& e) {
+    std::cerr << "Icon not found: " << NostoKeeb::PROGRAM_ICON << std::endl;
+  }
 }
+
+NK_AboutDialog::~NK_AboutDialog() = default;

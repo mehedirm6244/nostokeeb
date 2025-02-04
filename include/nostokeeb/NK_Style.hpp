@@ -16,21 +16,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "nostokeeb/NostoKeeb.hpp"
-#include "nostokeeb/NK_Window.hpp"
 
-#include <iostream>
+#ifndef NK_STYLE_HPP
+#define NK_STYLE_HPP
 
-int main(int argc, char* argv[]) {
-  // Startup message
-  std::cout << NostoKeeb::PROGRAM_NAME << " " << NostoKeeb::VERSION
-            << " (C) 2024-2025 Mehedi Rahman Mahi\n"
-            << "This program comes with ABSOLUTELY NO WARRANTY.\n"
-            << "This is free software, and you are welcome to redistribute it under certain conditions.\n"
-            << "Launching NostoKeeb...\n";
+#include <string>
 
-  auto app = Gtk::Application::create(argc, argv, "org.nostokeeb.app");
-
-  NK_Window window;
-  return app->run(window);
+namespace NK_Style {
+  const std::string CSS_DEFAULT = R"(
+    .nk_keyboard button {
+      padding: 8px;
+      min-width: 24px;
+      min-height: 24px;
+      font-weight: 500;
+    }
+    .nk_keyboard .button-wide { padding: 8px 12px; }
+    .nk_keyboard .control-box button {
+      background-color: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 6px;
+      min-width: 20px;
+      min-height: 20px;
+      border-radius: 0px;
+    }
+  )";
 }
+
+#endif
